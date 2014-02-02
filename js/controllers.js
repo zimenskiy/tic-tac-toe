@@ -20,7 +20,7 @@ var cornerCells = [0, 2, 6, 8];
 var sideCells = [1, 3, 5, 7];
 var centerCell = 4;
 
-var gameTicTacToe = angular.module('gameTicTacToe', ['gameTicTacToeFilters']);
+var gameTicTacToe = angular.module('gameTicTacToe', []);
 
 gameTicTacToe.controller('GameController', ['$scope', '$timeout', function ($scope, $timeout) {
 	$scope.gamePlaying = false;
