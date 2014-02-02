@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en" data-ng-app="gameTicTacToe">
+<head>
+	<meta charset="utf-8">
+	<title>Tic-tac-toe</title>
+	<link rel="stylesheet" href="css/app.css">
+	<script src="lib/angular/angular.min.js"></script>
+	<script src="js/controllers.js"></script>
+	<script src="js/filters.js"></script>
+</head>
+<body data-ng-controller="GameController">
+<div id="wrapper">
+	<div id="board">
+		<div class="cell" data-ng-repeat="cell in cells" data-ng-class="{inactive: cell.value || !gamePlaying || gameBlocked, win: cell.win, lose: cell.lose}" data-ng-click="markCell(cell)">
+			{{cell.value | uppercase}}
+		</div>
+	</div>
+
+	<div id="message">{{roundInfo}}</div>
+
+	<div id="controls" data-ng-show="!gamePlaying">
+		<button data-ng-click="newGame()">New game</button>
+		<input type="radio" data-ng-model="level" name="level" value="easy">Easy
+		<input type="radio" data-ng-model="level" name="level" value="normal">Normal
+	</div>
+
+	<div id="info" data-ng-show="gameLaunched">
+		<h1>Game info</h1>
+		<div>Computer level: {{level}}</div>
+		<div>You vs Computer, {{playerWins}}:{{computerWins}}</div>
+		<div id="history" data-ng-repeat="round in history">
+			<div>Round {{$index + 1}}, {{round.status}}</div>
+		</div>
+
+		<div id="currentRound" data-ng-show="roundPlaying">Round {{round}}</div>
+		
+		<div id="result" data-ng-show="!gamePlaying">{{gameResult}}</div>
+	</div>
+</div>
+</body>
+</html>

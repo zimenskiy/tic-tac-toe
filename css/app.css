@@ -1,0 +1,38 @@
+#wrapper {
+	text-align: center;
+	margin: 0 auto;
+}
+#board {
+	width: 306px;
+	text-align: center;
+	margin: 0 auto;
+	overflow: hidden;
+	clear: both;
+}
+
+.cell {
+	width: 100px;
+	height: 100px;
+	border: 1px solid #e2e2e2;
+	font-size: 80px;
+	float: left;
+}
+
+.cell:hover {
+	border-color: grey;
+	cursor: pointer;
+}
+
+.cell.inactive {
+	border-color: #f2f2f2;
+	font-weight: bold;
+	cursor: default;
+}
+
+.win {
+	color: green;
+}
+
+.lose {
+	color: red;
+}
