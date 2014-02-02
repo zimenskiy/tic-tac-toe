@@ -23,14 +23,21 @@ var centerCell = 4;
 var gameTicTacToe = angular.module('gameTicTacToe', []);
 
 gameTicTacToe.controller('GameController', ['$scope', '$timeout', function ($scope, $timeout) {
+	// Indicates if game is playing.
 	$scope.gamePlaying = false;
+	// Indicates if game was launched once.
 	$scope.gameLaunched = false;
+	// Indicates if player is blocked to perform any actions on board.
 	$scope.gameBlocked = false;
+	// Level of computer's "intelligence".
 	$scope.level = LEVEL_NORMAL;
-	// Different in score to win in a game.
+	// Difference between player and computer scores to win in a game.
 	$scope.scoreDiffToWin = 1;
+	// Represents number of non-tie rounds to win in a game.
 	$scope.numberOfScoreToWin = 2;
+	// Contains information about game winner.
 	$scope.gameResult = '';
+	// Contains a mark assigned to player.
 	$scope.playerMark = '';
 
 	$scope.resetBoard = function() {
@@ -49,12 +56,16 @@ gameTicTacToe.controller('GameController', ['$scope', '$timeout', function ($sco
 		// Each game must start with 'x' move, so last (previous) mark is set to 'o'.
 		$scope.lastMark = 'o';
 
+		// Empty round message.
 		$scope.roundInfo = '';
 	}
 
 	$scope.resetCounters = function() {
+		// Reset player's score.
 		$scope.playerWins = 0;
+		// Reset computer's score.
 		$scope.computerWins = 0;
+		// Reset round number;
 		$scope.round = 0;
 	}
 
@@ -62,30 +73,31 @@ gameTicTacToe.controller('GameController', ['$scope', '$timeout', function ($sco
 		$scope.history = [];
 	}
 
+	/**
+	 * Player's click handler.
+	 * Marks empty cell and checks if the round is finished.
+	 */
 	$scope.markCell = function(cell) {
 		if (cell.value || !$scope.gamePlaying || $scope.gameBlocked) {
-			// If cell is already marked or game is finished then do nothing.
+			// If cell is already marked or game is finished/blocked then do nothing.
 		} else {
+			// Mark cell.
 			cell.value = $scope.getNextMark();
+			// Block player to perform any actions on board.
 			$scope.gameBlocked = true;
+			// Update round message.
 			$scope.roundInfo = "Computer's move...";
 
 			if (!$scope.checkIfRoundFinished()) {
+				// If round is not finished then let computer to make an action.
 				$timeout($scope.computerMove, 500);
 			}
 		}
 	};
 
-
-	$scope.checkIfRoundFinished = function() {
-		var roundResult = $scope.isRoundFinished();
-		if (roundResult) {
-			$scope.finishRound(roundResult);
-			return true;
-		}
-		return false;
-	}
-
+	/**
+	 * Returns mark for next move.
+	 */
 	$scope.getNextMark = function() {
 		if ($scope.lastMark == 'o') {
 			$scope.lastMark = 'x';
@@ -96,101 +108,15 @@ gameTicTacToe.controller('GameController', ['$scope', '$timeout', function ($sco
 		return $scope.lastMark;
 	}
 
-	$scope.newGame = function() {
-		$scope.resetBoard();
-		$scope.resetCounters();
-		$scope.resetHistory();
-
-		$scope.gameLaunched = true;
-		$scope.gamePlaying = true;
-		$scope.roundInfo = '';
-		$scope.gameResult = '';
-
-		$scope.newRound();
-
-		// var ar = [
-		// 	[$scope.cells[0].value, $scope.cells[0].value, $scope.cells[0].value],
-		// 	['1', 					$scope.cells[0].value, $scope.cells[0].value],
-		// 	[$scope.cells[0].value, '1',	   			   $scope.cells[0].value],
-		// 	[$scope.cells[0].value, $scope.cells[0].value, '1'					],
-		// 	['1',					'1', 				   $scope.cells[0].value],
-		// 	[$scope.cells[0].value, '1', 				   '1' 					],
-		// 	['1', 					$scope.cells[0].value, '1'					],
-		// 	['1',					'1',					'1'					],
-		// ];
-
-		// for (var i=0; i< ar.length; i++) {
-		// 	cellA = ar[i][0];
-		// 	cellB = ar[i][1];
-		// 	cellC = ar[i][2];
-		// 	console.log(parseInt(cellA) + ' ' + parseInt(cellB) + ' ' + parseInt(cellC) + ' ------');
-		// 	console.log(!cellA ^ !cellB ^ !cellC);
-		// 	console.log((cellA || cellB || cellC) == true );
-		// }
-
-	}
-
-	$scope.isPlayerMovesFirst = function() {
-		if ($scope.playerMovesFirst == true) {
-			return false;
-		} else if ($scope.playerMovesFirst == false) {
+	$scope.checkIfRoundFinished = function() {
+		var roundResult = $scope.isRoundFinished();
+		if (roundResult) {
+			$scope.finishRound(roundResult);
 			return true;
-		} else {
-			return Math.floor((Math.random() * 10)) > 4;
 		}
+		return false;
 	}
 
-	$scope.newRound = function() {
-		$scope.round++;
-		$scope.resetBoard();
-		$scope.roundPlaying = true;
-		$scope.gameBlocked = false;
-
-		$scope.playerMovesFirst = $scope.isPlayerMovesFirst();
-		if ($scope.playerMovesFirst == true) {
-			$scope.playerMark = 'x';
-			$scope.roundInfo = "Your move";
-		} else {
-			$scope.playerMark = 'o';
-			$scope.computerMove();
-		}
-
-	}
-
-	$scope.finishRound = function(result) {
-		if (result == GAME_WIN) {
-			$scope.playerWins++;
-		} else if (result == GAME_LOSE) {
-			$scope.computerWins++;
-		}
-		$scope.history.push({'status': result});
-		$scope.roundInfo = result;
-		$scope.gameBlocked = true;
-		$scope.roundPlaying = false;
-
-		if ($scope.isGameFinished()) {
-			$scope.roundInfo = '';
-			$scope.gameResult = $scope.getGameResultMessage();
-			$scope.gamePlaying = false;
-		} else {
-			// Start new round after a while.
-			$timeout($scope.newRound, 1500);
-		}
-	}
-
-	$scope.isGameFinished = function() {
-		return (Math.abs($scope.playerWins - $scope.computerWins) >= $scope.scoreDiffToWin) && (Math.max($scope.playerWins, $scope.computerWins) >= $scope.numberOfScoreToWin);
-	}
-
-	$scope.getGameResultMessage = function() {
-		if ($scope.playerWins > $scope.computerWins) {
-			return 'Victory!';
-		} else if ($scope.playerWins < $scope.computerWins) {
-			return 'Failure!';
-		} else {
-			return GAME_TIE;
-		}
-	}
 
 	$scope.isRoundFinished = function() {
 		for (var i = 0; i < victoryCombinations.length; i++) {
@@ -229,10 +155,104 @@ gameTicTacToe.controller('GameController', ['$scope', '$timeout', function ($sco
 		return false;
 	}
 
-	$scope.computerMove = function() {
-		$scope.gameBlocked = false;
-		$scope.roundInfo = "Your move";
+	/**
+	 * Finishes round and checks if game is finished.
+	 */
+	$scope.finishRound = function(result) {
+		if (result == GAME_WIN) {
+			// Add score to player.
+			$scope.playerWins++;
+		} else if (result == GAME_LOSE) {
+			// Add score to computer.
+			$scope.computerWins++;
+		}
+		// Update rounds history.
+		$scope.history.push({'status': result});
+		// Update round message.
+		$scope.roundInfo = result;
+		$scope.gameBlocked = true;
+		$scope.roundPlaying = false;
 
+		if ($scope.isGameFinished()) {
+			$scope.roundInfo = '';
+			$scope.gameResult = $scope.getGameResultMessage();
+			$scope.gamePlaying = false;
+		} else {
+			// Start new round after a while.
+			$timeout($scope.newRound, 1500);
+		}
+	}
+
+	/**
+	 * New game button handler.
+	 */
+	$scope.newGame = function() {
+		$scope.resetBoard();
+		$scope.resetCounters();
+		$scope.resetHistory();
+
+		$scope.gameLaunched = true;
+		$scope.gamePlaying = true;
+		$scope.roundInfo = '';
+		$scope.gameResult = '';
+
+		$scope.newRound();
+	}
+
+	/**
+	 * Starts new round.
+	 */
+	$scope.newRound = function() {
+		// Increase round number.
+		$scope.round++;
+		$scope.resetBoard();
+		$scope.roundPlaying = true;
+		$scope.gameBlocked = false;
+
+		// Check who's moves first.
+		$scope.playerMovesFirst = $scope.isPlayerMovesFirst();
+		if ($scope.playerMovesFirst == true) {
+			$scope.playerMark = 'x';
+			$scope.roundInfo = "Your move";
+		} else {
+			$scope.playerMark = 'o';
+			$scope.computerMove();
+		}
+
+	}
+
+	/**
+	 * Rotates moving order.
+	 */
+	$scope.isPlayerMovesFirst = function() {
+		if ($scope.playerMovesFirst == true) {
+			return false;
+		} else if ($scope.playerMovesFirst == false) {
+			return true;
+		} else {
+			return Math.floor((Math.random() * 10)) > 4;
+		}
+	}
+
+	/**
+	 * Checks if game is finished.
+	 * Returns true when score difference is enough to win and necessary number of rounds were played.
+	 */
+	$scope.isGameFinished = function() {
+		return (Math.abs($scope.playerWins - $scope.computerWins) >= $scope.scoreDiffToWin) && (Math.max($scope.playerWins, $scope.computerWins) >= $scope.numberOfScoreToWin);
+	}
+
+	$scope.getGameResultMessage = function() {
+		if ($scope.playerWins > $scope.computerWins) {
+			return 'Victory!';
+		} else if ($scope.playerWins < $scope.computerWins) {
+			return 'Failure!';
+		} else {
+			return GAME_TIE;
+		}
+	}
+
+	$scope.computerMove = function() {
 		var cell;
 		switch ($scope.level) {
 			case LEVEL_EASY:
@@ -250,19 +270,23 @@ gameTicTacToe.controller('GameController', ['$scope', '$timeout', function ($sco
 		$scope.cells[cell].value = $scope.getNextMark();
 
 		$scope.checkIfRoundFinished();
-				
+		
+		// Unblock the game so player can mark some cells.
+		$scope.gameBlocked = false;
+		$scope.roundInfo = "Your move";
+
 		return true;
 	}
 
 	/**
-	 * Strategy 1: mark center -> corner -> side or prevent/force victory combination.
+	 * Strategy 1: mark center -> corner -> side -> victory combination.
 	 * Computer level: low.
 	 */
 	$scope.computerMoveOptionOne = function() {
 		var i;
 		var cell;
 
-		// Check center cell, return if empty.
+		// Check center cell, return cell's number if cell is empty.
 		if (!$scope.cells[centerCell].value) {
 			return centerCell;
 		}
@@ -274,7 +298,7 @@ gameTicTacToe.controller('GameController', ['$scope', '$timeout', function ($sco
 			return cell;
 		}
 
-		// Check compbination, return if next move leads to victory.
+		// Check compbination, return if next move leads to victory or prevents the fall.
 		for (i = 0; i < victoryCombinations.length; i++) {
 			var a = victoryCombinations[i][0];
 			var b = victoryCombinations[i][1];
@@ -282,7 +306,7 @@ gameTicTacToe.controller('GameController', ['$scope', '$timeout', function ($sco
 			var cellA = $scope.cells[a].value;
 			var cellB = $scope.cells[b].value;
 			var cellC = $scope.cells[c].value;
-			// First condition: check the cells with same values only.
+			// First condition: watch the cells with same values only.
 			// Second condition: one of the cells only must be empty.
 			// Third condition: at least one of the cells must not be empty. This one excludes an option when all cells are empty.
 			if (((cellA == cellB) || (cellB == cellC) || (cellA == cellC)) && (!cellA ^ !cellB ^ !cellC) && (cellA || cellB || cellC)) {
@@ -298,7 +322,7 @@ gameTicTacToe.controller('GameController', ['$scope', '$timeout', function ($sco
 	}
 
 	/**
-	 * Strategy 1 (modified): mark center -> corner OR side or prevent/force victory combination.
+	 * Strategy 1 (modified): mark center -> prevent/force victory combination -> mark corner or side.
 	 * Computer level: strong.
 	 */
 	$scope.computerMoveOptionTwo = function() {
