@@ -297,28 +297,6 @@ gameTicTacToe.controller('GameController', ['$scope', '$timeout', function ($sco
 		} else {
 			return cell;
 		}
-
-		// Check compbination, return if next move leads to victory or prevents the fall.
-		for (i = 0; i < victoryCombinations.length; i++) {
-			var a = victoryCombinations[i][0];
-			var b = victoryCombinations[i][1];
-			var c = victoryCombinations[i][2];
-			var cellA = $scope.cells[a].value;
-			var cellB = $scope.cells[b].value;
-			var cellC = $scope.cells[c].value;
-			// First condition: watch the cells with same values only.
-			// Second condition: one of the cells only must be empty.
-			// Third condition: at least one of the cells must not be empty. This one excludes an option when all cells are empty.
-			if (((cellA == cellB) || (cellB == cellC) || (cellA == cellC)) && (!cellA ^ !cellB ^ !cellC) && (cellA || cellB || cellC)) {
-				if (!cellA) {
-					return a;
-				} else if (!cellB) {
-					return b;
-				} else {
-					return c;
-				}
-			}
-		}
 	}
 
 	/**
